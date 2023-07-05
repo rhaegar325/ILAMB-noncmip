@@ -40,7 +40,7 @@ from ILAMB.Scoreboard import Scoreboard
 from mpi4py import MPI
 from netCDF4 import Dataset
 
-sys.path.append('./')
+sys.path.append('../')
 from CMORise import generate_cmip
 if "wetdry" not in plt.colormaps(): RegisterCustomColormaps()
 
