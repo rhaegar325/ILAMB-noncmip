@@ -40,6 +40,10 @@ from ILAMB.Scoreboard import Scoreboard
 from mpi4py import MPI
 from netCDF4 import Dataset
 
+sys.path.append('./')
+from CMORise import generate_cmip
+if "wetdry" not in plt.colormaps(): RegisterCustomColormaps()
+
 if "wetdry" not in plt.colormaps():
     RegisterCustomColormaps()
 import platform
@@ -286,8 +290,25 @@ def ParseModelSetup(
             model_year = None
             mgrp = ""
             if len(line) >= 2:
-                mname = line[0].strip()
-                mdir = line[1].strip()
+                if line[-1].strip()=='noncmip':
+                    noncmip_path=line[1].strip()
+                    new_nc_path=models_path+'/../temp'
+                    # if rank==0:
+                    #     generate_cmip(noncmip_path,new_nc_path)
+                    if rank == 0:
+                        print(rank)
+                        print('start generate cmip')
+                        t0=time.time()
+                        generate_cmip(noncmip_path,new_nc_path,args.config[0])
+                        # comm.Barrier()
+                        t1=time.time()
+                        print(t1-t0)
+                    comm.Barrier()
+                    mname  = line[0].strip()
+                    mdir   = new_nc_path
+                else:
+                    mname = line[0].strip()
+                    mdir = line[1].strip()
                 # if mdir not a directory, then maybe path is relative to ILAMB_ROOT
                 if not os.path.isdir(mdir):
                     mdir = os.path.join(os.environ["ILAMB_ROOT"], mdir).strip()
